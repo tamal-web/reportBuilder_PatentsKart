@@ -20,6 +20,7 @@ env/
 # Build outputs
 ai/dist/
 ai/build/
+ai/_active_model.json
 electron-app/dist/
 electron-app/node_modules/
 rbone/node_modules/

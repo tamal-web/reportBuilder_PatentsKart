@@ -1,0 +1,42 @@
+on:
+  workflow_dispatch: # lets you trigger it manually from the Actions tab
+  push:
+    tags:
+      - "v*"
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14" # match whatever version you use locally
+      - name: Install backend dependencies
+        working-directory: ai
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+      - name: Build backend exe
+        working-directory: ai
+        run: pyinstaller --onedir --name backend main.py
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Build frontend static export
+        working-directory: rbone
+        run: |
+          npm install
+          npm run build
+      - name: Install Electron app dependencies
+        working-directory: electron-app
+        run: npm install
+      - name: Build Electron installer
+        working-directory: electron-app
+        run: npm run build
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: electron-app/dist/*.exe
