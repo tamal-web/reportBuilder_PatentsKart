@@ -1,0 +1,63 @@
+{
+  "name": "patentskart-electron",
+  "version": "1.0.0",
+  "description": "PatentsKart Prior-Art Search Report Generation System",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron .",
+    "build": "electron-builder build --win",
+    "build:all": "electron-builder build --win --mac",
+    "build:mac": "electron-builder build --mac"
+  },
+  "dependencies": {
+    "electron-serve": "^3.0.1",
+    "tree-kill": "^1.2.2"
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.patentskart.reportbuilder",
+    "productName": "PatentsKart Prior-Art Report Builder",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      {
+        "from": "../rbone/out",
+        "to": "out",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "../ai/dist/backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": [
+        "zip"
+      ],
+      "identity": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
