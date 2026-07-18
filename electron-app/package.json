@@ -10,7 +10,6 @@
     "build:mac": "electron-builder build --mac"
   },
   "dependencies": {
-    "electron-serve": "^3.0.1",
     "tree-kill": "^1.2.2"
   },
   "devDependencies": {
@@ -48,6 +47,7 @@
     },
     "mac": {
       "target": [
+        "dmg",
         "zip"
       ],
       "identity": null

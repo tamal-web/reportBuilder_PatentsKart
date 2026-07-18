@@ -1,16 +1,13 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, protocol, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const http = require('http');
 const treeKill = require('tree-kill');
-const serve = require('electron-serve').default;
 
-const loadURL = serve({
-  directory: app.isPackaged
-    ? path.join(__dirname, 'out')
-    : path.join(__dirname, '..', 'rbone', 'out')
-});
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { secure: true, standard: true, supportFetchAPI: true, corsEnabled: true } }
+]);
 
 let mainWindow = null;
 let backendProcess = null;
@@ -113,8 +110,7 @@ function createMainWindow() {
     }
   });
 
-  // Load the static export using electron-serve
-  loadURL(mainWindow);
+  mainWindow.loadURL('app://-/index.html');
 
   // mainWindow.webContents.openDevTools(); // Uncomment for debugging
 
@@ -129,6 +125,22 @@ function createMainWindow() {
 }
 
 app.whenReady().then(async () => {
+  protocol.handle('app', (request) => {
+    let url = request.url.slice('app://-'.length);
+    if (!url || url === '/') url = '/index.html';
+    // Remove query params
+    url = url.split('?')[0].split('#')[0];
+    
+    let filePath = app.isPackaged
+      ? path.join(__dirname, 'out', url)
+      : path.join(__dirname, '..', 'rbone', 'out', url);
+      
+    if (!fs.existsSync(filePath) && fs.existsSync(filePath + '.html')) {
+        filePath += '.html';
+    }
+    return net.fetch('file://' + filePath);
+  });
+
   startBackend();
 
   const isReady = await waitForBackend();
